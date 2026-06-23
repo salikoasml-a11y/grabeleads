@@ -207,10 +207,24 @@ app.post('/api/leads', async (req, res) => {
 
 // Create Stripe checkout session (paid plans)
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { plan, quantity = 1, name, email, company } = req.body
+  const { plan, quantity = 1, name, email, company, promo } = req.body
 
   if (!['per-lead', 'monthly'].includes(plan)) {
     return res.status(400).json({ error: 'Invalid plan.' })
+  }
+
+  // Promo code check — value lives only in env, never in source code
+  const secretCode  = process.env.PROMO_CODE
+  const promoValid  = secretCode && promo && promo.trim().toUpperCase() === secretCode.toUpperCase()
+
+  if (promoValid) {
+    // Give them free leads directly without going through Stripe
+    const leads = pickLeads(plan === 'monthly' ? 20 : Math.max(1, parseInt(quantity, 10)))
+    if (name && email) {
+      saveLead({ name, email, company: company || '—', plan, quantity, source: 'promo' })
+      await sendLeadsToBuyer(email, name, leads)
+    }
+    return res.json({ free: true, leads })
   }
 
   if (!stripe) {

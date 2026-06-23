@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const INITIAL = { name: '', email: '', company: '' }
+const INITIAL = { name: '', email: '', company: '', promo: '' }
 
 export default function CheckoutModal({ plan, quantity, onClose }) {
   const [form, setForm]     = useState(INITIAL)
@@ -35,7 +35,8 @@ export default function CheckoutModal({ plan, quantity, onClose }) {
         body: JSON.stringify({ plan, quantity, ...form }),
       })
       const data = await res.json()
-      if (data.url) { window.location.href = data.url }
+      if (data.free) { onClose(); window.location.href = '/?payment=success&plan=' + plan }
+      else if (data.url) { window.location.href = data.url }
       else throw new Error(data.error || 'Could not create checkout session.')
     } catch (err) {
       setErrors({ form: err.message })
@@ -77,9 +78,10 @@ export default function CheckoutModal({ plan, quantity, onClose }) {
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {[
-            { id: 'name',    label: 'Full Name',    type: 'text',  placeholder: 'Jane Smith' },
-            { id: 'email',   label: 'Work Email',   type: 'email', placeholder: 'jane@company.com' },
-            { id: 'company', label: 'Company Name', type: 'text',  placeholder: 'Acme Corp' },
+            { id: 'name',    label: 'Full Name',         type: 'text',  placeholder: 'Jane Smith' },
+            { id: 'email',   label: 'Work Email',        type: 'email', placeholder: 'jane@company.com' },
+            { id: 'company', label: 'Company Name',      type: 'text',  placeholder: 'Acme Corp' },
+            { id: 'promo',   label: 'Promo Code (optional)', type: 'text', placeholder: 'Enter code' },
           ].map(f => (
             <div key={f.id}>
               <label htmlFor={`modal-${f.id}`} className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
