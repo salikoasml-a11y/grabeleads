@@ -22,7 +22,8 @@ function pickLeads(count) {
   const shuffled = all.sort(() => Math.random() - 0.5)
   return shuffled.slice(0, Math.min(count, all.length))
 }
-const stripe      = new Stripe(process.env.STRIPE_SECRET_KEY)
+const stripeKey   = process.env.STRIPE_SECRET_KEY
+const stripe      = stripeKey && !stripeKey.includes('REPLACE') ? new Stripe(stripeKey) : null
 const CLIENT_URL  = process.env.CLIENT_URL  || 'http://localhost:5173'
 const ADMIN_KEY   = process.env.ADMIN_KEY   || 'changeme'
 const PORT        = process.env.PORT        || 3001
@@ -152,7 +153,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
   let event
   try {
-    event = secret
+    event = (secret && stripe)
       ? stripe.webhooks.constructEvent(req.body, sig, secret)
       : JSON.parse(req.body)
   } catch (err) {
@@ -210,6 +211,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
   if (!['per-lead', 'monthly'].includes(plan)) {
     return res.status(400).json({ error: 'Invalid plan.' })
+  }
+
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payments are not configured yet. Please contact support.' })
   }
 
   try {

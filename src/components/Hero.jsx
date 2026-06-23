@@ -58,7 +58,7 @@ export default function Hero() {
           {/* Right — form card */}
           <div id="get-leads" className="bg-white rounded-2xl shadow-2xl p-8 text-gray-900">
             <h2 className="text-xl font-bold text-gray-900 mb-1">Start Getting Leads Today</h2>
-            <p className="text-sm text-gray-500 mb-6">Fill in the form and get your leads instantly — straight to your inbox.</p>
+            <p className="text-sm text-gray-500 mb-6">Fill in the form and get 5 verified leads instantly — no credit card required.</p>
             <LeadForm />
           </div>
         </div>
