@@ -269,6 +269,25 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 })
 
+// Search leads inventory (public — returns count + 2 preview, rest blurred)
+app.get('/api/search', (req, res) => {
+  const { q = '', industry = '' } = req.query
+  const all = getInventory()
+  const keyword = q.toLowerCase().trim()
+  const results = all.filter(l => {
+    const matchIndustry = !industry || l.industry === industry
+    const matchKeyword  = !keyword  || [l.name, l.title, l.company, l.location]
+      .some(f => f.toLowerCase().includes(keyword))
+    return matchIndustry && matchKeyword
+  })
+  const preview = results.slice(0, 2)
+  const locked  = results.slice(2).map(() => ({
+    name: '••••• •••••', title: '••••• •••••', company: '••••• Inc.',
+    email: '•••••@•••••.com', linkedin: '', industry: '', location: '•••••, ••'
+  }))
+  res.json({ total: results.length, leads: [...preview, ...locked] })
+})
+
 // Admin: view all leads
 app.get('/api/leads', (req, res) => {
   if (req.query.key !== ADMIN_KEY) {

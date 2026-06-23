@@ -4,8 +4,8 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
 
   const links = [
+    { label: 'Search Leads', href: '#search' },
     { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Features',     href: '#features' },
     { label: 'Pricing',      href: '#pricing' },
   ]
 

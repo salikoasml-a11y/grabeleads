@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Navbar       from './components/Navbar'
 import Hero         from './components/Hero'
+import SearchLeads  from './components/SearchLeads'
 import HowItWorks   from './components/HowItWorks'
 import Features     from './components/Features'
 import Pricing      from './components/Pricing'
@@ -69,6 +70,7 @@ export default function App() {
       <Navbar />
       <main className="flex-1">
         <Hero />
+        <SearchLeads />
         <HowItWorks />
         <Features />
         <Pricing />
