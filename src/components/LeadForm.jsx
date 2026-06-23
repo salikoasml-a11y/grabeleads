@@ -46,6 +46,23 @@ export default function LeadForm({ dark = false }) {
     }
   }
 
+  function downloadCSV() {
+    const header = 'Name,Title,Company,Email,LinkedIn,Industry,Location'
+    const rows = leads.map(l =>
+      [l.name, l.title, l.company, l.email, l.linkedin, l.industry, l.location]
+        .map(v => `"${(v || '').replace(/"/g, '""')}"`)
+        .join(',')
+    )
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = 'grableleads.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (status === 'success') {
     return (
       <div className="py-4 space-y-4">
@@ -58,28 +75,39 @@ export default function LeadForm({ dark = false }) {
           <h3 className="text-xl font-bold text-gray-900">Here are your 5 free leads!</h3>
         </div>
         {leads.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
-                <tr>
-                  <th className="px-3 py-2 text-left">Name</th>
-                  <th className="px-3 py-2 text-left">Title</th>
-                  <th className="px-3 py-2 text-left">Company</th>
-                  <th className="px-3 py-2 text-left">Email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((l, i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-3 py-2 font-medium text-gray-900">{l.name}</td>
-                    <td className="px-3 py-2 text-gray-600">{l.title}</td>
-                    <td className="px-3 py-2 text-gray-600">{l.company}</td>
-                    <td className="px-3 py-2 text-blue-600">{l.email}</td>
+          <>
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                  <tr>
+                    <th className="px-3 py-2 text-left">Name</th>
+                    <th className="px-3 py-2 text-left">Title</th>
+                    <th className="px-3 py-2 text-left">Company</th>
+                    <th className="px-3 py-2 text-left">Email</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {leads.map((l, i) => (
+                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="px-3 py-2 font-medium text-gray-900">{l.name}</td>
+                      <td className="px-3 py-2 text-gray-600">{l.title}</td>
+                      <td className="px-3 py-2 text-gray-600">{l.company}</td>
+                      <td className="px-3 py-2 text-blue-600">{l.email}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={downloadCSV}
+              className="btn-primary w-full flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download CSV
+            </button>
+          </>
         )}
         <button
           onClick={() => { setForm(INITIAL); setLeads([]); setStatus('idle') }}
