@@ -14,14 +14,8 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 font-extrabold text-xl text-brand-600 tracking-tight">
-            <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="8" fill="#2563EB"/>
-              <path d="M8 10h16M8 16h10M8 22h13" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="24" cy="22" r="4" fill="#60a5fa"/>
-              <path d="M22.5 22l1 1 2-2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            GrableLeads
+          <a href="#" className="flex items-center">
+            <img src="/logo.png" alt="GrableLeads" className="h-10 w-auto" />
           </a>
 
           {/* Desktop nav */}

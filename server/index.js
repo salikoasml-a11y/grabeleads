@@ -57,7 +57,12 @@ const mailer = smtpConfigured
   : null
 
 async function notifyOwner(lead) {
-  if (!mailer || !process.env.OWNER_EMAIL) return
+  if (!mailer) {
+    console.log('\n📬 [TEST] Owner notification (no SMTP configured):')
+    console.log(`  Lead: ${lead.name} <${lead.email}> @ ${lead.company} — plan: ${lead.plan}`)
+    return
+  }
+  if (!process.env.OWNER_EMAIL) return
   const planLabel = { free: 'Free', 'per-lead': 'Pay Per Lead', monthly: 'Monthly Unlimited' }
   try {
   await mailer.sendMail({
@@ -82,7 +87,11 @@ async function notifyOwner(lead) {
 }
 
 async function sendLeadsToBuyer(buyerEmail, buyerName, leads) {
-  if (!mailer) return
+  if (!mailer) {
+    console.log(`\n📦 [TEST] Leads that would be emailed to ${buyerName} <${buyerEmail}>:`)
+    leads.forEach((l, i) => console.log(`  ${i + 1}. ${l.name} (${l.title} @ ${l.company}) — ${l.email}`))
+    return
+  }
   const rows = leads.map((l, i) => `
     <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f9fafb'}">
       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${l.name}</td>
@@ -192,7 +201,7 @@ app.post('/api/leads', async (req, res) => {
   await notifyOwner(lead)
   const leads = pickLeads(5)
   await sendLeadsToBuyer(email.trim(), name.trim(), leads)
-  res.json({ ok: true })
+  res.json({ ok: true, leads })
 })
 
 // Create Stripe checkout session (paid plans)

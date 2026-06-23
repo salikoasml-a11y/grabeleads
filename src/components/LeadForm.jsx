@@ -6,6 +6,7 @@ export default function LeadForm({ dark = false }) {
   const [form, setForm]     = useState(INITIAL)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | loading | success | error
+  const [leads, setLeads]   = useState([])
 
   function validate() {
     const e = {}
@@ -29,6 +30,8 @@ export default function LeadForm({ dark = false }) {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error((await res.json()).error || 'Server error')
+      const data = await res.json()
+      setLeads(data.leads || [])
       setStatus('success')
     } catch (err) {
       setErrors({ form: err.message || 'Something went wrong. Please try again.' })
@@ -45,19 +48,42 @@ export default function LeadForm({ dark = false }) {
 
   if (status === 'success') {
     return (
-      <div className="text-center py-6 space-y-3">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <div className="py-4 space-y-4">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Here are your 5 free leads!</h3>
         </div>
-        <h3 className="text-xl font-bold text-gray-900">Your leads are on their way!</h3>
-        <p className="text-gray-500 text-sm">
-          We just sent 5 verified B2B leads to <strong>{form.email}</strong>. Check your inbox now!
-        </p>
+        {leads.length > 0 && (
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                <tr>
+                  <th className="px-3 py-2 text-left">Name</th>
+                  <th className="px-3 py-2 text-left">Title</th>
+                  <th className="px-3 py-2 text-left">Company</th>
+                  <th className="px-3 py-2 text-left">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((l, i) => (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-3 py-2 font-medium text-gray-900">{l.name}</td>
+                    <td className="px-3 py-2 text-gray-600">{l.title}</td>
+                    <td className="px-3 py-2 text-gray-600">{l.company}</td>
+                    <td className="px-3 py-2 text-blue-600">{l.email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         <button
-          onClick={() => { setForm(INITIAL); setStatus('idle') }}
-          className="text-sm text-brand-600 hover:underline font-medium"
+          onClick={() => { setForm(INITIAL); setLeads([]); setStatus('idle') }}
+          className="text-sm text-brand-600 hover:underline font-medium w-full text-center"
         >
           Submit another request
         </button>
