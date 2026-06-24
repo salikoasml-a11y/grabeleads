@@ -260,7 +260,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
       ],
       success_url: `${CLIENT_URL}/?payment=success&plan=${plan}`,
       cancel_url:  `${CLIENT_URL}/?payment=cancelled`,
-      allow_promotion_codes: true,
     })
     res.json({ url: session.url })
   } catch (err) {

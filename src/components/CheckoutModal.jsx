@@ -81,7 +81,7 @@ export default function CheckoutModal({ plan, quantity, onClose }) {
             { id: 'name',    label: 'Full Name',         type: 'text',  placeholder: 'Jane Smith' },
             { id: 'email',   label: 'Work Email',        type: 'email', placeholder: 'jane@company.com' },
             { id: 'company', label: 'Company Name',      type: 'text',  placeholder: 'Acme Corp' },
-            { id: 'promo',   label: 'Promo Code (optional)', type: 'text', placeholder: 'Enter code' },
+            { id: 'promo',   label: '🎟 Have a promo code? Enter it here', type: 'text', placeholder: 'e.g. GRABLE2025' },
           ].map(f => (
             <div key={f.id}>
               <label htmlFor={`modal-${f.id}`} className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
