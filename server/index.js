@@ -222,19 +222,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
     return res.status(400).json({ error: 'Invalid plan.' })
   }
 
-  // Promo code check — value lives only in env, never in source code
-  const secretCode  = process.env.PROMO_CODE
-  const promoValid  = secretCode && promo && promo.trim().toUpperCase() === secretCode.toUpperCase()
-
-  if (promoValid) {
-    // Give them free leads directly without going through Stripe
-    const leads = pickLeads(plan === 'monthly' ? 20 : Math.max(1, parseInt(quantity, 10)))
-    if (name && email) {
-      saveLead({ name, email, company: company || '—', plan, quantity, source: 'promo' })
-      await sendLeadsToBuyer(email, name, leads)
-    }
-    return res.json({ free: true, leads })
+  // Promo codes with discounts
+  const promoCodes = {
+    'GRABLE10': 0.10,  // 10% off
+    'GRABLE20': 0.20,  // 20% off
+    'SUMMER15': 0.15,  // 15% off
   }
+
+  const promoDiscount = promo ? promoCodes[promo.trim().toUpperCase()] : null
 
   if (!stripe) {
     return res.status(503).json({ error: 'Payments are not configured yet. Please contact support.' })
@@ -242,18 +237,21 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
   try {
     const isMonthly = plan === 'monthly'
+    const baseAmount = isMonthly ? 9900 : 900
+    const discountedAmount = promoDiscount ? Math.round(baseAmount * (1 - promoDiscount)) : baseAmount
+
     const session   = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: isMonthly ? 'subscription' : 'payment',
       customer_email: email || undefined,
-      metadata: { name: name || '', email: email || '', company: company || '', plan, quantity: String(quantity) },
+      metadata: { name: name || '', email: email || '', company: company || '', plan, quantity: String(quantity), promo: promo || '' },
       line_items: [
         isMonthly
           ? {
               price_data: {
                 currency: 'usd',
                 product_data: { name: 'GrableLeads — Monthly Unlimited', description: 'Unlimited verified B2B leads every month.' },
-                unit_amount: 9900,
+                unit_amount: discountedAmount,
                 recurring: { interval: 'month' },
               },
               quantity: 1,
@@ -262,7 +260,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
               price_data: {
                 currency: 'usd',
                 product_data: { name: 'GrableLeads — Pay Per Lead', description: 'Verified B2B leads with email, name, company, and LinkedIn URL.' },
-                unit_amount: 900,
+                unit_amount: discountedAmount,
               },
               quantity: Math.max(1, parseInt(quantity, 10)),
             },
