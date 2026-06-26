@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const INITIAL = { name: '', email: '', company: '' }
+const INITIAL = { name: '', email: '', company: '', promo: '' }
 
 export default function CheckoutModal({ plan, quantity, onClose }) {
   const [form, setForm]     = useState(INITIAL)
