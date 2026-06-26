@@ -224,9 +224,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
   // Promo codes with discounts
   const promoCodes = {
-    'GRABLE10': 0.10,  // 10% off
-    'GRABLE20': 0.20,  // 20% off
-    'SUMMER15': 0.15,  // 15% off
+    'XK7M2PQ9': 0.10,  // 10% off
+    'RN4V8TJ1': 0.20,  // 20% off
+    'WL5D3FK6': 0.15,  // 15% off
+    'ZP7R2HW4': 0.25,  // 25% off
   }
 
   const promoDiscount = promo ? promoCodes[promo.trim().toUpperCase()] : null
