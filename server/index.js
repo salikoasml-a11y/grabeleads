@@ -146,6 +146,15 @@ async function sendLeadsToBuyer(buyerEmail, buyerName, leads) {
 
 const app = express()
 
+// Redirect Vercel domain to custom domain
+app.use((req, res, next) => {
+  const host = req.get('host')
+  if (host && host.includes('.vercel.app')) {
+    return res.redirect(301, `https://www.grabeleads.com${req.originalUrl}`)
+  }
+  next()
+})
+
 // Stripe webhook needs raw body — mount before json middleware
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig    = req.headers['stripe-signature']
